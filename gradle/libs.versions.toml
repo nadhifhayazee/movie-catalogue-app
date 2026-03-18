@@ -17,6 +17,7 @@ coil = "2.5.0"
 paging = "3.2.1"
 navigationCompose = "2.7.6"
 ksp = "2.1.0-1.0.29"
+googleFonts = "1.6.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -62,6 +63,9 @@ paging-compose = { group = "androidx.paging", name = "paging-compose", version.r
 
 # Navigation
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+
+# Google Fonts
+google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "googleFonts" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
