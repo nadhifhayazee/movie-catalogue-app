@@ -4,32 +4,17 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.googlefonts.Font
-import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.Font as ComposeFont
 import com.nadhifhayazee.moviecatalogue.R
 
-// Google Fonts provider
-val provider = GoogleFont.Provider(
-    providerAuthority = "com.google.android.gms.fonts",
-    providerPackage = "com.google.android.gms",
-    certificates = R.array.com_google_android_gms_fonts_certs
-)
-
-// Poppins Font Family
+// Poppins Font Family - uses local TTF file
 val PoppinsFontFamily = FontFamily(
-    Font(googleFont = GoogleFont("Poppins"), fontProvider = provider),
-    Font(googleFont = GoogleFont("Poppins"), fontProvider = provider, weight = FontWeight.Light),
-    Font(googleFont = GoogleFont("Poppins"), fontProvider = provider, weight = FontWeight.Normal),
-    Font(googleFont = GoogleFont("Poppins"), fontProvider = provider, weight = FontWeight.Medium),
-    Font(googleFont = GoogleFont("Poppins"), fontProvider = provider, weight = FontWeight.SemiBold),
-    Font(googleFont = GoogleFont("Poppins"), fontProvider = provider, weight = FontWeight.Bold),
-    Font(googleFont = GoogleFont("Poppins"), fontProvider = provider, weight = FontWeight.ExtraBold)
+    ComposeFont(R.font.poppins)
 )
 
 // Movie Catalogue Typography with Poppins
 val Typography = Typography(
-    // Display styles
     displayLarge = TextStyle(
         fontFamily = PoppinsFontFamily,
         fontWeight = FontWeight.Light,
@@ -51,8 +36,6 @@ val Typography = Typography(
         lineHeight = 44.sp,
         letterSpacing = 0.sp
     ),
-    
-    // Headline styles
     headlineLarge = TextStyle(
         fontFamily = PoppinsFontFamily,
         fontWeight = FontWeight.SemiBold,
@@ -74,8 +57,6 @@ val Typography = Typography(
         lineHeight = 32.sp,
         letterSpacing = 0.sp
     ),
-    
-    // Title styles
     titleLarge = TextStyle(
         fontFamily = PoppinsFontFamily,
         fontWeight = FontWeight.Normal,
@@ -97,8 +78,6 @@ val Typography = Typography(
         lineHeight = 20.sp,
         letterSpacing = 0.1.sp
     ),
-    
-    // Body styles
     bodyLarge = TextStyle(
         fontFamily = PoppinsFontFamily,
         fontWeight = FontWeight.Normal,
@@ -120,8 +99,6 @@ val Typography = Typography(
         lineHeight = 16.sp,
         letterSpacing = 0.4.sp
     ),
-    
-    // Label styles
     labelLarge = TextStyle(
         fontFamily = PoppinsFontFamily,
         fontWeight = FontWeight.Medium,
