@@ -79,7 +79,7 @@ fun FavoritesScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        items(uiState.movies) { movie ->
+                        items(uiState.movies, key = { it.id }) { movie ->
                             MovieCard(
                                 movie = movie,
                                 onClick = { onMovieClick(movie.id) },

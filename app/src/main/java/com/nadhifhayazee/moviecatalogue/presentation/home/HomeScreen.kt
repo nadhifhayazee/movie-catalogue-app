@@ -138,7 +138,7 @@ fun MovieSection(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(movies) { movie ->
+            items(movies, key = { it.id }) { movie ->
                 MovieCard(
                     movie = movie,
                     onClick = { onMovieClick(movie.id) },
