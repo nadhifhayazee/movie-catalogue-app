@@ -5,7 +5,6 @@ import androidx.paging.PagingState
 import com.nadhifhayazee.moviecatalogue.core.util.Result
 import com.nadhifhayazee.moviecatalogue.data.remote.RemoteDataSource
 import com.nadhifhayazee.moviecatalogue.domain.model.Movie
-import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 sealed class MovieQuery {
@@ -32,14 +31,12 @@ class MoviePagingSource @Inject constructor(
             val page = params.key ?: 1
             val pageSize = params.loadSize
 
-            val resultFlow = when (query) {
+            val result = when (query) {
                 is MovieQuery.Latest -> remoteDataSource.getLatestMovies(page)
                 is MovieQuery.TopRated -> remoteDataSource.getTopRatedMovies(page)
                 is MovieQuery.Recommended -> remoteDataSource.getRecommendedMovies(page)
                 is MovieQuery.Search -> remoteDataSource.searchMovies(query.query, page)
             }
-
-            val result = resultFlow.first()
 
             return when (result) {
                 is Result.Success -> {
@@ -54,10 +51,10 @@ class MoviePagingSource @Inject constructor(
                     )
                 }
                 is Result.Error -> {
-                    LoadResult.Error(Throwable(result.message))
+                    LoadResult.Error(result.exception)
                 }
                 is Result.Loading -> {
-                    // This shouldn't happen since we're using .first()
+                    // This shouldn't happen since we're using suspend functions
                     LoadResult.Error(Throwable("Unexpected loading state"))
                 }
             }

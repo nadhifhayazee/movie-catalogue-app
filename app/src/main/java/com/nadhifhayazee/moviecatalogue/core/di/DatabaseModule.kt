@@ -2,6 +2,8 @@ package com.nadhifhayazee.moviecatalogue.core.di
 
 import android.content.Context
 import com.nadhifhayazee.moviecatalogue.data.local.database.MovieDatabase
+import com.nadhifhayazee.moviecatalogue.data.local.database.MIGRATION_1_2
+import com.nadhifhayazee.moviecatalogue.data.local.database.MIGRATION_2_3
 import com.nadhifhayazee.moviecatalogue.data.local.dao.MovieDao
 import dagger.Module
 import dagger.Provides
@@ -23,7 +25,8 @@ object DatabaseModule {
             context,
             MovieDatabase::class.java,
             "movie_database"
-        ).build()
+        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+         .build()
     }
 
     @Provides

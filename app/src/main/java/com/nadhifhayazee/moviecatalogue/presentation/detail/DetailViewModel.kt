@@ -3,6 +3,7 @@ package com.nadhifhayazee.moviecatalogue.presentation.detail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nadhifhayazee.moviecatalogue.core.util.NetworkException
 import com.nadhifhayazee.moviecatalogue.domain.usecase.AddFavoriteMovieUseCase
 import com.nadhifhayazee.moviecatalogue.domain.usecase.GetMovieDetailUseCase
 import com.nadhifhayazee.moviecatalogue.domain.usecase.IsFavoriteMovieUseCase
@@ -57,7 +58,7 @@ class DetailViewModel @Inject constructor(
                     }
                     is com.nadhifhayazee.moviecatalogue.core.util.Result.Error -> {
                         _uiState.value = _uiState.value.copy(
-                            error = result.message,
+                            error = result.exception,
                             isLoading = false
                         )
                     }
@@ -92,7 +93,7 @@ data class DetailUiState(
     val movie: com.nadhifhayazee.moviecatalogue.domain.model.Movie? = null,
     val isFavorite: Boolean = false,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: NetworkException? = null
 )
 
 sealed class DetailUiEvent {

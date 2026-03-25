@@ -62,7 +62,7 @@ class RepositoryMoviePagingSource @Inject constructor(
                     )
                 }
                 is Result.Error -> {
-                    LoadResult.Error(Throwable(result.message))
+                    LoadResult.Error(result.exception)
                 }
                 is Result.Loading -> {
                     // This shouldn't happen since we're using .first()

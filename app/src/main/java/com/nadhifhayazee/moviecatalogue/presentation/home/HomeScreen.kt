@@ -61,7 +61,7 @@ fun HomeScreen(
                 LoadingContent()
             } else if (uiState.error != null) {
                 com.nadhifhayazee.moviecatalogue.presentation.components.ErrorContent(
-                    message = uiState.error,
+                    exception = uiState.error,
                     onRetry = { viewModel.onEvent(HomeUiEvent.Refresh) }
                 )
             } else {

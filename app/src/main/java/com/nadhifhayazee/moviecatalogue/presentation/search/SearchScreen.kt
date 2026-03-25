@@ -151,7 +151,7 @@ fun SearchScreen(
 
                 uiState.error != null && uiState.movies.isEmpty() -> {
                     ErrorContent(
-                        message = uiState.error,
+                        exception = uiState.error,
                         onRetry = { viewModel.onEvent(SearchUiEvent.Search(searchQuery)) }
                     )
                 }

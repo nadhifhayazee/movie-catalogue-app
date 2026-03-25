@@ -2,13 +2,13 @@ package com.nadhifhayazee.moviecatalogue.presentation.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nadhifhayazee.moviecatalogue.core.util.NetworkException
 import com.nadhifhayazee.moviecatalogue.domain.model.Movie
 import com.nadhifhayazee.moviecatalogue.domain.usecase.AddFavoriteMovieUseCase
 import com.nadhifhayazee.moviecatalogue.domain.usecase.RemoveFavoriteMovieUseCase
 import com.nadhifhayazee.moviecatalogue.domain.usecase.SearchMoviesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -72,8 +72,8 @@ class SearchViewModel @Inject constructor(
             searchMoviesUseCase(query, currentPage).collect { result ->
                 when (result) {
                     is com.nadhifhayazee.moviecatalogue.core.util.Result.Loading -> {
-                        _uiState.update {
-                            it.copy(isLoading = true)
+                        if (_uiState.value.movies.isEmpty()) {
+                            _uiState.update { it.copy(isLoading = true) }
                         }
                     }
                     is com.nadhifhayazee.moviecatalogue.core.util.Result.Success -> {
@@ -81,7 +81,7 @@ class SearchViewModel @Inject constructor(
                             val updatedMovies = if (reset) {
                                 result.data
                             } else {
-                                state.movies + result.data
+                                state.movies.take((currentPage - 1) * 20) + result.data
                             }
 
                             state.copy(
@@ -96,7 +96,7 @@ class SearchViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                error = result.message
+                                error = result.exception
                             )
                         }
                     }
@@ -119,17 +119,7 @@ class SearchViewModel @Inject constructor(
             } else {
                 addFavoriteMovieUseCase(movie)
             }
-
-            // Update local state immediately for better UX
-            _uiState.update { state ->
-                state.copy(
-                    movies = state.movies.map {
-                        if (it.id == movie.id) {
-                            it.copy(isFavorite = !movie.isFavorite)
-                        } else it
-                    }
-                )
-            }
+            // No manual update needed as repository flow is reactive
         }
     }
 
@@ -144,7 +134,7 @@ class SearchViewModel @Inject constructor(
 data class SearchUiState(
     val movies: List<Movie> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null,
+    val error: NetworkException? = null,
     val hasMore: Boolean = true
 )
 

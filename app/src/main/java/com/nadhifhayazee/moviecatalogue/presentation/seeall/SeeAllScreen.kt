@@ -82,7 +82,7 @@ fun SeeAllScreen(
                 
                 uiState.error != null && uiState.movies.isEmpty() -> {
                     ErrorContent(
-                        message = uiState.error,
+                        exception = uiState.error,
                         onRetry = { viewModel.onEvent(SeeAllUiEvent.Refresh) }
                     )
                 }
