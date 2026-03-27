@@ -143,7 +143,8 @@ fun MovieSection(
                     movie = movie,
                     onClick = { onMovieClick(movie.id) },
                     onFavoriteClick = { onFavoriteClick(movie) },
-                    showFavoriteButton = true
+                    showFavoriteButton = true,
+                    modifier = Modifier.width(160.dp)
                 )
             }
         }

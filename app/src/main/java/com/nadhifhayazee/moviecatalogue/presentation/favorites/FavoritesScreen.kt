@@ -84,7 +84,8 @@ fun FavoritesScreen(
                                 movie = movie,
                                 onClick = { onMovieClick(movie.id) },
                                 onFavoriteClick = { viewModel.onRemoveFavorite(movie.id) },
-                                showFavoriteButton = true
+                                showFavoriteButton = true,
+                                modifier = Modifier.fillMaxWidth()
                             )
                         }
                     }

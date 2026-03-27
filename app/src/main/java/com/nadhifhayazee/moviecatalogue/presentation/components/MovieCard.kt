@@ -27,8 +27,7 @@ fun MovieCard(
     showFavoriteButton: Boolean = true
 ) {
     Card(
-        modifier = modifier
-            .width(160.dp),
+        modifier = modifier,
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column {
@@ -90,7 +89,7 @@ fun MovieCard(
                     RatingBadge(rating = movie.voteAverage)
 
                     Text(
-                        text = movie.releaseDate.substring(0, 4),
+                        text = if (movie.releaseDate.length >= 4) movie.releaseDate.substring(0, 4) else movie.releaseDate.ifEmpty { "N/A" },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

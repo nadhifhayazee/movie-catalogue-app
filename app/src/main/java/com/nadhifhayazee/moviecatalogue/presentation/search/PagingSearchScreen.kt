@@ -1,7 +1,7 @@
 package com.nadhifhayazee.moviecatalogue.presentation.search
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -35,12 +35,14 @@ fun PagingSearchScreen(
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    // Focus search field when screen loads or search becomes active
-    LaunchedEffect(isSearchActive) {
-        if (isSearchActive) {
-            delay(100)
+    // Focus search field when screen loads
+    LaunchedEffect(Unit) {
+        delay(300)
+        try {
             focusRequester.requestFocus()
             keyboardController?.show()
+        } catch (e: Exception) {
+            // Ignore
         }
     }
 
@@ -48,21 +50,17 @@ fun PagingSearchScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    if (isSearchActive) {
-                        SearchTextField(
-                            query = searchQuery,
-                            onQueryChange = { newQuery ->
-                                viewModel.onEvent(PagingSearchUiEvent.Search(newQuery))
-                            },
-                            onClearClick = {
-                                viewModel.onEvent(PagingSearchUiEvent.ClearSearch)
-                            },
-                            focusRequester = focusRequester,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    } else {
-                        Text("Search Movies")
-                    }
+                    SearchTextField(
+                        query = searchQuery,
+                        onQueryChange = { newQuery ->
+                            viewModel.onEvent(PagingSearchUiEvent.Search(newQuery))
+                        },
+                        onClearClick = {
+                            viewModel.onEvent(PagingSearchUiEvent.ClearSearch)
+                        },
+                        focusRequester = focusRequester,
+                        modifier = Modifier.padding(end = 16.dp)
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
@@ -70,18 +68,6 @@ fun PagingSearchScreen(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
                         )
-                    }
-                },
-                actions = {
-                    if (!isSearchActive) {
-                        IconButton(onClick = { 
-                            viewModel.onEvent(PagingSearchUiEvent.ActivateSearch) 
-                        }) {
-                            Icon(
-                                imageVector = Icons.Filled.Search,
-                                contentDescription = "Search"
-                            )
-                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -97,7 +83,7 @@ fun PagingSearchScreen(
                 .padding(paddingValues)
         ) {
             when {
-                !isSearchActive && searchQuery.isEmpty() -> {
+                searchQuery.isEmpty() && movies.itemCount == 0 -> {
                     // Show empty state
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -124,11 +110,6 @@ fun PagingSearchScreen(
                     }
                 }
 
-                searchQuery.isEmpty() -> {
-                    // Search active but no query yet
-                    // Could show recent searches or suggestions here
-                }
-
                 else -> {
                     PagingMovieList(
                         movies = movies,
@@ -149,8 +130,13 @@ fun PagingMovieList(
     onMovieClick: (Int) -> Unit,
     onFavoriteClick: (com.nadhifhayazee.moviecatalogue.domain.model.Movie) -> Unit
 ) {
-    LazyColumn(
+    val gridState = rememberLazyGridState()
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        state = gridState,
         modifier = Modifier.fillMaxSize(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(16.dp)
     ) {
@@ -171,8 +157,8 @@ fun PagingMovieList(
         }
 
         // Show loading indicator when loading more
-        item {
-            if (movies.loadState.append is androidx.paging.LoadState.Loading) {
+        if (movies.loadState.append is androidx.paging.LoadState.Loading) {
+            item(span = { GridItemSpan(2) }) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -185,8 +171,8 @@ fun PagingMovieList(
         }
 
         // Show error when loading more fails
-        item {
-            if (movies.loadState.append is androidx.paging.LoadState.Error) {
+        if (movies.loadState.append is androidx.paging.LoadState.Error) {
+            item(span = { GridItemSpan(2) }) {
                 val error = (movies.loadState.append as androidx.paging.LoadState.Error).error
                 Text(
                     text = "Error loading more: ${error.message}",
@@ -200,9 +186,9 @@ fun PagingMovieList(
         }
 
         // Show no more items indicator
-        item {
-            if (movies.loadState.append is androidx.paging.LoadState.NotLoading && 
-                movies.itemCount > 0) {
+        if (movies.loadState.append is androidx.paging.LoadState.NotLoading && 
+            movies.itemCount > 0) {
+            item(span = { GridItemSpan(2) }) {
                 Text(
                     text = "No more movies to load",
                     modifier = Modifier
@@ -215,3 +201,4 @@ fun PagingMovieList(
         }
     }
 }
+

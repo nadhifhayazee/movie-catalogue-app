@@ -1,9 +1,7 @@
 package com.nadhifhayazee.moviecatalogue.presentation.search
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -30,19 +28,19 @@ fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val lazyListState = rememberLazyListState()
+    val gridState = rememberLazyGridState()
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     var searchQuery by remember { mutableStateOf("") }
-    var isSearchActive by remember { mutableStateOf(false) }
+    var isSearchActive by remember { mutableStateOf(true) }
 
     // Load more when reaching end of list
-    LaunchedEffect(lazyListState) {
+    LaunchedEffect(gridState) {
         while (true) {
-            val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
+            val visibleItems = gridState.layoutInfo.visibleItemsInfo
             if (visibleItems.isNotEmpty()) {
                 val lastVisibleItem = visibleItems.last()
-                val totalItems = lazyListState.layoutInfo.totalItemsCount
+                val totalItems = gridState.layoutInfo.totalItemsCount
                 
                 if (lastVisibleItem.index >= totalItems - 5 && !uiState.isLoading && uiState.hasMore) {
                     viewModel.onEvent(SearchUiEvent.LoadMore)
@@ -52,16 +50,14 @@ fun SearchScreen(
         }
     }
 
-    // Focus search field when search becomes active
-    LaunchedEffect(isSearchActive) {
-        if (isSearchActive) {
-            delay(100) // Small delay to ensure the TextField is composed and attached
-            try {
-                focusRequester.requestFocus()
-                keyboardController?.show()
-            } catch (e: IllegalStateException) {
-                // FocusRequester might still not be initialized
-            }
+    // Focus search field when screen loads
+    LaunchedEffect(Unit) {
+        delay(300) // Slightly longer delay for smoother focus on entry
+        try {
+            focusRequester.requestFocus()
+            keyboardController?.show()
+        } catch (e: Exception) {
+            // Ignore
         }
     }
 
@@ -69,23 +65,19 @@ fun SearchScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    if (isSearchActive) {
-                        SearchTextField(
-                            query = searchQuery,
-                            onQueryChange = { newQuery ->
-                                searchQuery = newQuery
-                                viewModel.onEvent(SearchUiEvent.Search(newQuery))
-                            },
-                            onClearClick = {
-                                searchQuery = ""
-                                viewModel.onEvent(SearchUiEvent.ClearSearch)
-                            },
-                            focusRequester = focusRequester,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    } else {
-                        Text("Search Movies")
-                    }
+                    SearchTextField(
+                        query = searchQuery,
+                        onQueryChange = { newQuery ->
+                            searchQuery = newQuery
+                            viewModel.onEvent(SearchUiEvent.Search(newQuery))
+                        },
+                        onClearClick = {
+                            searchQuery = ""
+                            viewModel.onEvent(SearchUiEvent.ClearSearch)
+                        },
+                        focusRequester = focusRequester,
+                        modifier = Modifier.padding(end = 16.dp)
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
@@ -93,16 +85,6 @@ fun SearchScreen(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
                         )
-                    }
-                },
-                actions = {
-                    if (!isSearchActive) {
-                        IconButton(onClick = { isSearchActive = true }) {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = "Search"
-                            )
-                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -118,7 +100,7 @@ fun SearchScreen(
                 .padding(paddingValues)
         ) {
             when {
-                searchQuery.isEmpty() && !isSearchActive -> {
+                searchQuery.isEmpty() && uiState.movies.isEmpty() -> {
                     // Show empty state
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -156,7 +138,7 @@ fun SearchScreen(
                     )
                 }
 
-                uiState.movies.isEmpty() && searchQuery.isNotEmpty() -> {
+                uiState.movies.isEmpty() && searchQuery.isNotEmpty() && !uiState.isLoading -> {
                     // No results found
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -184,9 +166,11 @@ fun SearchScreen(
                 }
 
                 else -> {
-                    LazyColumn(
-                        state = lazyListState,
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        state = gridState,
                         modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         contentPadding = PaddingValues(16.dp)
                     ) {
@@ -204,7 +188,7 @@ fun SearchScreen(
 
                         // Loading indicator at bottom for pagination
                         if (uiState.isLoading && uiState.movies.isNotEmpty()) {
-                            item {
+                            item(span = { GridItemSpan(2) }) {
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -218,7 +202,7 @@ fun SearchScreen(
 
                         // End of list indicator
                         if (!uiState.hasMore && uiState.movies.isNotEmpty()) {
-                            item {
+                            item(span = { GridItemSpan(2) }) {
                                 Text(
                                     text = "No more movies to load",
                                     modifier = Modifier
@@ -235,3 +219,4 @@ fun SearchScreen(
         }
     }
 }
+
